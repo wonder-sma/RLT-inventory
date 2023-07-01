@@ -1,7 +1,36 @@
-# Vue 3 + Vite
+# This is a Vue 3 + Vite inventory project
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## What's inside?
 
-## Recommended IDE Setup
+- [VueJS](https://vuejs.org)
+- [Vite](https://vitejs.dev)
+- [Pinia](https://pinia.vuejs.org)
+- [Sass](https://sass-lang.com)
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Getting started
+
+1. Install dependencies.
+   ```bash
+   npm install
+   ```
+
+2. Start dev server with hot reload at http://localhost:5173.
+   ```bash
+   npm run dev
+   ```
+
+## Other commands
+
+### Build commands
+
+```bash
+npm run build
+```
+
+```bash
+npm run preview
+```
+
+## License
+
+This project is licensed under the MIT License.

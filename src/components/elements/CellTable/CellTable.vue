@@ -1,18 +1,27 @@
 <script setup>
-import Cell from './Cell.vue';
-import Item from '../Item.vue';
+import Cell from '@/components/elements/CellTable/Cell.vue';
+import Item from '@/components/elements/Item.vue';
+import { drag } from '@/helpers/drag.js';
 
 const props = defineProps({
   cells: {
     type: Array,
     required: true,
   },
-  items: {
+  inventory: {
     type: Map,
     required: true,
   },
 });
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'move']);
+
+const onMouseDown = (event, element) => {
+  drag(
+    event,
+    element,
+    (targetCellId) => emit('move', element.dataset.id, targetCellId),
+  );
+};
 </script>
 
 <template>
@@ -21,15 +30,20 @@ const emit = defineEmits(['click']);
 			<Cell
 				v-for="cell in cellRow"
 				:key="cell.id"
-				:count="items.get(cell.id).count"
+				:count="inventory.get(cell.id).count"
+				:data-id="cell.id"
+				:data-count="inventory.get(cell.id).count || 0"
 				@click="emit('click', cell.id)"
+				@mousedown="onMouseDown"
+				@dragstart.prevent
 			>
 				<Item
-					v-if="items.get(cell.id).mainColor"
-					:main-color="items.get(cell.id).mainColor"
-					:secondary-color="items.get(cell.id).secondaryColor"
+					v-if="inventory.get(cell.id).itemId"
+					:main-color="inventory.get(cell.id).mainColor"
+					:secondary-color="inventory.get(cell.id).secondaryColor"
 					:width="54"
 					:height="54"
+					:data-id="inventory.get(cell.id).itemId"
 				/>
 			</Cell>
 		</div>

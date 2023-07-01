@@ -33,10 +33,7 @@ const setAmountMode = (value) => {
 
 const onDelete = () => {
   if (inputValue.value) {
-    emit('delete', inputValue.value);
-    emit('close', modalRef.value);
-    setAmountMode(false);
-    inputValue.value = '';
+    emit('delete', inputValue.value, modalRef.value);
   }
 };
 
@@ -69,13 +66,13 @@ const onKeyDown = (event) => {
 			</header>
 			<div class="modal__body">
 				<div :class="['desc', {loading: isLoading}]">
-					<div class="desc__heading">{{ item?.description.heading }}</div>
+					<div class="desc__heading">{{ item?.description?.heading }}</div>
 					<div class="desc__main">
-						<div class="desc__p desc__p1">{{ item?.description.p1 }}</div>
-						<div class="desc__p desc__p2">{{ item?.description.p2 }}</div>
-						<div class="desc__p desc__p3">{{ item?.description.p3 }}</div>
-						<div class="desc__p desc__p4">{{ item?.description.p4 }}</div>
-						<div class="desc__p desc__p5">{{ item?.description.p5 }}</div>
+						<div class="desc__p desc__p1">{{ item?.description?.p1 }}</div>
+						<div class="desc__p desc__p2">{{ item?.description?.p2 }}</div>
+						<div class="desc__p desc__p3">{{ item?.description?.p3 }}</div>
+						<div class="desc__p desc__p4">{{ item?.description?.p4 }}</div>
+						<div class="desc__p desc__p5">{{ item?.description?.p5 }}</div>
 					</div>
 				</div>
 			</div>

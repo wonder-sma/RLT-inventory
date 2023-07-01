@@ -1,17 +1,18 @@
 <script setup>
 import { onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import Card from '../components/elements/Card.vue';
-import CellTable from '../components/elements/CellTable/CellTable.vue';
-import Footer from '../components/elements/Footer.vue';
-import Image from '../components/elements/Image.vue';
-import InventoryModal from '../components/elements/InventoryModal.vue';
-import Main from '../components/layouts/Main.vue';
+import { v4 as uuidv4 } from 'uuid';
+import Card from '@/components/elements/Card.vue';
+import CellTable from '@/components/elements/CellTable/CellTable.vue';
+import Footer from '@/components/elements/Footer.vue';
+import Image from '@/components/elements/Image.vue';
+import InventoryModal from '@/components/elements/InventoryModal.vue';
+import Main from '@/components/layouts/Main.vue';
 import Sample from '@/assets/img-blur.png';
-import { useInventoryStore } from '../stores/inventory-store';
+import { useInventoryStore } from '@/stores/inventory-store';
 
 const inventoryStore = useInventoryStore();
-const { cells, items, currentItemId, footerInfo } = storeToRefs(inventoryStore);
+const { cells, inventory, currentItemId, footerInfo } = storeToRefs(inventoryStore);
 
 onMounted(() => {
   // Инициализация размера инвентаря, если его размер не установлен
@@ -22,7 +23,7 @@ onMounted(() => {
   // Добавление в инвентарь исходного количества предметов, если инвентарь пуст
   let isEmpty = true;
 
-  for (let value of items.value.values()) {
+  for (let value of inventory.value.values()) {
     if (value.count) {
       isEmpty = false;
     }
@@ -35,6 +36,7 @@ onMounted(() => {
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
+      itemId: uuidv4(),
       count: 4,
       mainColor: '#7FAA65',
       secondaryColor: '#B8D998',
@@ -45,6 +47,7 @@ onMounted(() => {
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
+      itemId: uuidv4(),
       count: 2,
       mainColor: '#AA9765',
       secondaryColor: '#D9BB98',
@@ -55,6 +58,7 @@ onMounted(() => {
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
+      itemId: uuidv4(),
       count: 5,
       mainColor: '#656CAA',
       secondaryColor: '#7481ED',
@@ -72,12 +76,17 @@ const onCloseModal = (modal) => {
   setTimeout(() => inventoryStore.setCurrentItemId(''), 300);
 };
 
-const onDeleteItem = (amount) => {
+const onDeleteItem = (amount, modal) => {
+  onCloseModal(modal);
   inventoryStore.setItemAmount(amount);
 };
 
 const onModalMounted = (modal) => {
   modal.style.right = 0;
+};
+
+const onMoveItem = (currentCellId, targetCellId) => {
+  inventoryStore.moveItem(currentCellId, targetCellId);
 };
 </script>
 
@@ -94,10 +103,15 @@ const onModalMounted = (modal) => {
 			</Card>
 		</aside>
 		<main class="main">
-			<CellTable :cells="cells" :items="items" @click="onClickOnItem" />
+			<CellTable
+				:cells="cells"
+				:inventory="inventory"
+				@click="onClickOnItem"
+				@move="onMoveItem"
+			/>
 			<InventoryModal
 				v-if="currentItemId"
-				:item="items.get(currentItemId)"
+				:item="inventory.get(currentItemId)"
 				:is-loading="true"
 				@close="onCloseModal"
 				@delete="onDeleteItem"

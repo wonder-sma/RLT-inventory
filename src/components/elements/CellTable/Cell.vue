@@ -1,5 +1,6 @@
 <script setup>
-import Cursor from '../../../assets/clarity_cursor-hand-line.svg';
+import Cursor from '@/assets/clarity_cursor-hand-line.svg';
+import { ref } from 'vue';
 
 const props = defineProps({
   count: {
@@ -7,13 +8,27 @@ const props = defineProps({
     required: false,
   },
 });
+const emit = defineEmits(['mousedown']);
+
+const refCell = ref(null);
+
+const onMouseDown = (event) => {
+  if (props.count > 0) {
+    emit('mousedown', event, refCell.value);
+  }
+};
 </script>
 
 <template>
-	<div class="cell" :style="`cursor: url(${Cursor}), pointer;`">
+	<div
+		class="table-cell"
+		:style="`cursor: url(${Cursor}), pointer;`"
+		ref="refCell"
+		@mousedown="onMouseDown"
+	>
 		<slot />
-		<div class="cell__counter-cell" v-if="count !== undefined">
-			<span class="cell__counter">
+		<div class="table-cell__counter-cell" v-if="count !== undefined">
+			<span class="table-cell__counter">
 				{{ count }}
 			</span>
 		</div>
@@ -21,7 +36,7 @@ const props = defineProps({
 </template>
 
 <style lang="scss" scoped>
-.cell {
+.table-cell {
 	position: relative;
 	width: 105px;
 	height: 100px;
@@ -38,7 +53,7 @@ const props = defineProps({
 		border-right: 1px solid var(--primary-border, #4D4D4D);
 	}
 
-	.cell__counter-cell {
+	.table-cell__counter-cell {
 		position: absolute;
 		right: 0;
 		bottom: 0;
@@ -53,7 +68,7 @@ const props = defineProps({
 		background: var(--seondary-bg, #262626);
 		user-select: none;
 
-		.cell__counter {
+		.table-cell__counter {
 			font-size: 10px;
 			font-family: Inter, sans-serif;
 			font-weight: 500;

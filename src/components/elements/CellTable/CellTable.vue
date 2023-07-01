@@ -30,20 +30,20 @@ const onMouseDown = (event, element) => {
 			<Cell
 				v-for="cell in cellRow"
 				:key="cell.id"
-				:count="inventory.get(cell.id).count"
+				:count="inventory.get(cell.id).item.count"
 				:data-id="cell.id"
-				:data-count="inventory.get(cell.id).count || 0"
+				:data-count="inventory.get(cell.id).item.count || 0"
 				@click="emit('click', cell.id)"
 				@mousedown="onMouseDown"
 				@dragstart.prevent
 			>
 				<Item
-					v-if="inventory.get(cell.id).itemId"
-					:main-color="inventory.get(cell.id).mainColor"
-					:secondary-color="inventory.get(cell.id).secondaryColor"
+					v-if="inventory.get(cell.id).item.id"
+					:main-color="inventory.get(cell.id).item.mainColor"
+					:secondary-color="inventory.get(cell.id).item.secondaryColor"
 					:width="54"
 					:height="54"
-					:data-id="inventory.get(cell.id).itemId"
+					:data-id="inventory.get(cell.id).item.id"
 				/>
 			</Cell>
 		</div>

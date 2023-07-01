@@ -12,7 +12,7 @@ import Sample from '@/assets/img-blur.png';
 import { useInventoryStore } from '@/stores/inventory-store';
 
 const inventoryStore = useInventoryStore();
-const { cells, inventory, currentItemId, footerInfo } = storeToRefs(inventoryStore);
+const { cells, inventory, currentCellId, currentItem, footerInfo } = storeToRefs(inventoryStore);
 
 onMounted(() => {
   // Инициализация размера инвентаря, если его размер не установлен
@@ -24,7 +24,7 @@ onMounted(() => {
   let isEmpty = true;
 
   for (let value of inventory.value.values()) {
-    if (value.count) {
+    if (value.item.count) {
       isEmpty = false;
     }
   }
@@ -36,54 +36,61 @@ onMounted(() => {
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
-      itemId: uuidv4(),
-      count: 4,
-      mainColor: '#7FAA65',
-      secondaryColor: '#B8D998',
-      description: {},
+      item: {
+        id: uuidv4(),
+        count: 4,
+        mainColor: '#7FAA65',
+        secondaryColor: '#B8D998',
+        description: {},
+      },
     });
 
     id = cells.value[0][1].id;
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
-      itemId: uuidv4(),
-      count: 2,
-      mainColor: '#AA9765',
-      secondaryColor: '#D9BB98',
-      description: {},
+      item: {
+        id: uuidv4(),
+        count: 2,
+        mainColor: '#AA9765',
+        secondaryColor: '#D9BB98',
+        description: {},
+      },
     });
 
     id = cells.value[0][2].id;
     inventoryStore.addItem(id, {
       col: 0,
       row: 0,
-      itemId: uuidv4(),
-      count: 5,
-      mainColor: '#656CAA',
-      secondaryColor: '#7481ED',
-      description: {},
+      item: {
+        id: uuidv4(),
+        count: 5,
+        mainColor: '#656CAA',
+        secondaryColor: '#7481ED',
+        description: {},
+      },
     });
   }
 });
 
-const onClickOnItem = (id) => {
-  inventoryStore.setCurrentItemId(id);
+const onClickOnItem = (cellId) => {
+  inventoryStore.setCurrentCellId(cellId);
+  inventoryStore.setCurrentItem();
 };
 
 const onCloseModal = (modal) => {
   modal.style.right = '-250px';
-  setTimeout(() => inventoryStore.setCurrentItemId(''), 300);
+  setTimeout(() => inventoryStore.setCurrentCellId(''), 300);
 };
 
 const onDeleteItem = (amount, modal) => {
-  onCloseModal(modal);
   inventoryStore.setItemAmount(amount);
+  onCloseModal(modal);
 };
 
-const onModalMounted = (modal) => {
-  modal.style.right = 0;
-};
+const onModalMounted = (modal) => modal.style.right = 0;
+
+const onModalUnmounted = () => inventoryStore.setCurrentItem();
 
 const onMoveItem = (currentCellId, targetCellId) => {
   inventoryStore.moveItem(currentCellId, targetCellId);
@@ -110,12 +117,13 @@ const onMoveItem = (currentCellId, targetCellId) => {
 				@move="onMoveItem"
 			/>
 			<InventoryModal
-				v-if="currentItemId"
-				:item="inventory.get(currentItemId)"
+				v-if="currentCellId"
+				:item="currentItem"
 				:is-loading="true"
 				@close="onCloseModal"
 				@delete="onDeleteItem"
 				@mount="onModalMounted"
+				@unmount="onModalUnmounted"
 			/>
 		</main>
 		<Footer :info="footerInfo" :is-loading="true" />

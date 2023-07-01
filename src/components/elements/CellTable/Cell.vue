@@ -1,6 +1,6 @@
 <script setup>
-import Cursor from '@/assets/clarity_cursor-hand-line.svg';
 import { ref } from 'vue';
+import Cursor from '@/assets/clarity_cursor-hand-line.svg';
 
 const props = defineProps({
   count: {

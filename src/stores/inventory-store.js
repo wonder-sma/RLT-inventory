@@ -23,7 +23,8 @@ export const useInventoryStore = defineStore('inventoryStore', () => {
     // Состояние инвентаря
     const cells = ref(getFromLocalStorage(INVENTORY_STORE_KEY)?.cells || []);
     const inventory = ref(new Map(getFromLocalStorage(INVENTORY_STORE_KEY)?.inventory || []));
-    const currentItemId = ref('');
+    const currentCellId = ref('');
+    const currentItem = ref({});
     const footerInfo = ref('');
 
     // Инициализация размера инвентаря
@@ -31,7 +32,7 @@ export const useInventoryStore = defineStore('inventoryStore', () => {
       for (let i = 0; i < rowCount; i++) {
         const row = Array.from({ length: colCount }, (_, index) => {
           const id = uuidv4();
-          inventory.value.set(id, { col: index, row: i });
+          inventory.value.set(id, { col: index, row: i, item: {} });
 
           return { id };
         });
@@ -40,46 +41,61 @@ export const useInventoryStore = defineStore('inventoryStore', () => {
       }
     };
 
+    // Установка текущей выбранной ячейки
+    const setCurrentCellId = (cellId) => currentCellId.value = cellId;
+
     // Установка текущего выбранного предмета
-    const setCurrentItemId = (id) => {
-      if (id && inventory.value.get(id).count) {
-        currentItemId.value = id;
+    const setCurrentItem = () => {
+      if (currentCellId.value) {
+        currentItem.value = inventory.value.get(currentCellId.value).item;
       } else {
-        currentItemId.value = '';
+        currentItem.value = {};
       }
     };
 
     // Добавление предмета в инвентарь
-    const addItem = (id, item) => inventory.value.set(id, item);
+    const addItem = (id, cell) => inventory.value.set(id, { ...cell });
 
     // Изменение количества выбранного предмета или его полное удаление
     const setItemAmount = (amount) => {
-      const currentItem = inventory.value.get(currentItemId.value);
+      const currentCell = inventory.value.get(currentCellId.value);
 
-      if (amount >= currentItem.count) {
-        inventory.value.set(currentItemId.value, { col: currentItem.col, row: currentItem.row });
+      if (amount >= currentCell.item.count) {
+        inventory.value.set(currentCellId.value, { ...currentCell, item: {} });
       } else {
-        inventory.value.set(currentItemId.value, { ...currentItem, count: currentItem.count - amount });
+        inventory.value.set(currentCellId.value, {
+          ...currentCell,
+          item: {
+            ...currentCell.item,
+            count: currentCell.item.count - amount,
+          },
+        });
       }
     };
 
     // Перемещение предмета в кол-ве 1 шт. в другую ячейку инвентаря
     const moveItem = (currentCellId, targetCellId) => {
-      // console.log(currentCellId, targetCellId);
       let currentCell = inventory.value.get(currentCellId);
 
-      if (currentCell.count) {
+      if (currentCell.item.count) {
         // Обновляем данные о текущей ячейке
-        inventory.value.set(currentCellId, { ...currentCell, count: currentCell.count - 1 });
+        inventory.value.set(currentCellId, {
+          ...currentCell,
+          item: {
+            ...currentCell.item,
+            count: currentCell.item.count - 1,
+          },
+        });
 
         const targetCell = inventory.value.get(targetCellId);
 
         // Обновляем данные о целевой ячейке
         inventory.value.set(targetCellId, {
-          ...inventory.value.get(currentCellId),
-          col: targetCell.col,
-          row: targetCell.row,
-          count: targetCell.count ? (targetCell.count + 1) : 1,
+          ...targetCell,
+          item: {
+            ...inventory.value.get(currentCellId).item,
+            count: targetCell.item.count ? (targetCell.item.count + 1) : 1,
+          },
         });
       }
 
@@ -87,8 +103,8 @@ export const useInventoryStore = defineStore('inventoryStore', () => {
       currentCell = inventory.value.get(currentCellId);
 
       // Проверяем, что если текущая ячейка стала пуста от элементов, то обнуляем ее
-      if (!currentCell.count) {
-        inventory.value.set(currentCellId, { col: currentCell.col, row: currentCell.row });
+      if (!currentCell.item.count) {
+        inventory.value.set(currentCellId, { ...currentCell, item: {} });
       }
     };
 
@@ -102,10 +118,12 @@ export const useInventoryStore = defineStore('inventoryStore', () => {
     return {
       cells,
       inventory,
-      currentItemId,
+      currentCellId,
+      currentItem,
       footerInfo,
       initCells,
-      setCurrentItemId,
+      setCurrentCellId,
+      setCurrentItem,
       addItem,
       setItemAmount,
       moveItem,
